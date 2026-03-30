@@ -1,5 +1,3 @@
-const menuButton = document.querySelector(".menu-toggle");
-const nav = document.querySelector(".site-nav");
 const navLinks = document.querySelectorAll(".site-nav a");
 const currentPage = document.body.getAttribute("data-page");
 const yearNode = document.getElementById("year");
@@ -17,21 +15,6 @@ navLinks.forEach((link) => {
     link.classList.add("active");
   }
 });
-
-if (menuButton && nav) {
-  menuButton.addEventListener("click", () => {
-    nav.classList.toggle("open");
-    const expanded = nav.classList.contains("open");
-    menuButton.setAttribute("aria-expanded", String(expanded));
-  });
-
-  navLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      nav.classList.remove("open");
-      menuButton.setAttribute("aria-expanded", "false");
-    });
-  });
-}
 
 if (serviceTypeSelect) {
   const queryParams = new URLSearchParams(window.location.search);
