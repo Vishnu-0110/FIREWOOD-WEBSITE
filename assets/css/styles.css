@@ -131,6 +131,9 @@ textarea {
   z-index: 90;
   pointer-events: none;
   overflow: hidden;
+  background: rgba(248, 252, 255, 0.18);
+  -webkit-backdrop-filter: blur(12px) saturate(1.08);
+  backdrop-filter: blur(12px) saturate(1.08);
 }
 
 .brand-intro-clone {
@@ -147,6 +150,8 @@ textarea {
   transform-origin: center center;
   will-change: transform, opacity, filter;
   transition: none;
+  backface-visibility: hidden;
+  contain: layout paint style;
 }
 
 .brand-intro-clone .brand-copy {
