@@ -10,71 +10,128 @@ const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const siteBrand = document.querySelector(".brand");
-const introStorageKey = "vlf_brand_intro_seen";
+const introStorageKey = "vlf_brand_intro_seen_v3";
 
-const getSessionFlag = () => {
+const getIntroFlag = () => {
   try {
-    return window.sessionStorage.getItem(introStorageKey);
+    return window.localStorage.getItem(introStorageKey);
   } catch {
     return null;
   }
 };
 
-const setSessionFlag = () => {
+const setIntroFlag = () => {
   try {
-    window.sessionStorage.setItem(introStorageKey, "1");
+    window.localStorage.setItem(introStorageKey, "1");
   } catch {
-    // If storage is unavailable, the intro still runs once per page load.
+    // If storage is unavailable, the intro still works for this page load.
   }
 };
 
-const playBrandIntro = (attempt = 0) => {
-  if (!siteBrand || prefersReducedMotion || getSessionFlag() === "1") {
+const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
+const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const playBrandIntro = async () => {
+  const introPending = document.documentElement.classList.contains("brand-intro-first-visit");
+
+  if (!siteBrand || prefersReducedMotion || !introPending || getIntroFlag() === "1") {
     return;
   }
 
   const targetRect = siteBrand.getBoundingClientRect();
 
   if (!targetRect.width || !targetRect.height) {
-    if (attempt < 10) {
-      window.setTimeout(() => playBrandIntro(attempt + 1), 80);
-    }
+    document.documentElement.classList.remove("brand-intro-first-visit");
     return;
   }
 
-  setSessionFlag();
+  setIntroFlag();
 
   const introLayer = document.createElement("div");
   introLayer.className = "brand-intro-overlay";
   introLayer.setAttribute("aria-hidden", "true");
 
   const introBrand = siteBrand.cloneNode(true);
-  introBrand.classList.add("brand-intro-clone");
+  introBrand.classList.add("brand-intro-clone", "is-typing");
   introBrand.removeAttribute("href");
   introBrand.setAttribute("tabindex", "-1");
   introBrand.setAttribute("aria-hidden", "true");
 
+  const introTag = introBrand.querySelector(".brand-tag");
+  if (introTag) {
+    introTag.remove();
+  }
+
+  const introName = introBrand.querySelector(".brand-name");
+  if (!introName) {
+    document.documentElement.classList.remove("brand-intro-first-visit");
+    return;
+  }
+
+  introName.textContent = "";
   introLayer.appendChild(introBrand);
-  body.classList.add("brand-intro-active");
   body.prepend(introLayer);
 
+  const introScale = window.innerWidth <= 560 ? 0.92 : window.innerWidth <= 900 ? 1.12 : 1.34;
   introBrand.style.left = "50%";
   introBrand.style.top = "50%";
   introBrand.style.opacity = "1";
-  introBrand.style.transform = "translate(-50%, -50%) scale(1.18)";
+  introBrand.style.transform = `translate(-50%, -50%) scale(${introScale})`;
 
-  window.requestAnimationFrame(() => {
-    introBrand.style.left = `${targetRect.left}px`;
-    introBrand.style.top = `${targetRect.top}px`;
-    introBrand.style.width = `${targetRect.width}px`;
-    introBrand.style.height = `${targetRect.height}px`;
-    introBrand.style.transform = "none";
-  });
+  const brandText = "VIJAYALAKSHMI FIREWOOD SUPPLIERS";
 
-  window.setTimeout(() => {
+  try {
+    await nextFrame();
+
+    for (const character of brandText) {
+      introName.textContent += character;
+      await wait(character === " " ? 100 : 55);
+    }
+
+    await wait(1000);
+
+    const startRect = introBrand.getBoundingClientRect();
+    const currentTargetRect = siteBrand.getBoundingClientRect();
+    const deltaX = currentTargetRect.left - startRect.left;
+    const deltaY = currentTargetRect.top - startRect.top;
+    const scaleX = currentTargetRect.width / startRect.width;
+    const scaleY = currentTargetRect.height / startRect.height;
+
+    introBrand.classList.remove("is-typing");
+    introBrand.style.transition = "none";
+    introBrand.style.left = `${startRect.left}px`;
+    introBrand.style.top = `${startRect.top}px`;
+    introBrand.style.width = `${startRect.width}px`;
+    introBrand.style.height = `${startRect.height}px`;
+    introBrand.style.transform = "translate(0px, 0px) scale(1)";
+    introBrand.getBoundingClientRect();
+    introBrand.style.transition = "transform 1.15s ease-in-out";
+
+    window.requestAnimationFrame(() => {
+      introBrand.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    });
+
+    const cleanup = () => {
+      introLayer.remove();
+      document.documentElement.classList.remove("brand-intro-first-visit");
+    };
+
+    const cleanupTimer = window.setTimeout(cleanup, 1600);
+
+    introBrand.addEventListener(
+      "transitionend",
+      (event) => {
+        if (event.propertyName === "transform") {
+          window.clearTimeout(cleanupTimer);
+          cleanup();
+        }
+      },
+      { once: true }
+    );
+  } catch (error) {
     introLayer.remove();
-    body.classList.remove("brand-intro-active");
-  }, 220);
+    document.documentElement.classList.remove("brand-intro-first-visit");
+  }
 };
 
 if (yearNode) {
@@ -82,12 +139,16 @@ if (yearNode) {
 }
 
 if (document.readyState === "complete") {
-  window.requestAnimationFrame(() => playBrandIntro(0));
+  window.requestAnimationFrame(() => {
+    playBrandIntro();
+  });
 } else {
   window.addEventListener(
     "load",
     () => {
-      window.requestAnimationFrame(() => playBrandIntro(0));
+      window.requestAnimationFrame(() => {
+        playBrandIntro();
+      });
     },
     { once: true }
   );
