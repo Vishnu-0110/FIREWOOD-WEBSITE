@@ -9,8 +9,9 @@ const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const introStorageKey = "vlf_brand_intro_seen";
+const introStorageKey = "vlf_brand_intro_seen_session";
 const siteBrand = document.querySelector(".brand");
+let brandIntroStarted = false;
 
 const safeStorage = {
   get(key) {
@@ -29,18 +30,22 @@ const safeStorage = {
   },
 };
 
-const playBrandIntro = () => {
+const playBrandIntro = (attempt = 0) => {
   if (!siteBrand || prefersReducedMotion || safeStorage.get(introStorageKey) === "1") {
-    safeStorage.set(introStorageKey, "1");
     return;
   }
 
   const targetRect = siteBrand.getBoundingClientRect();
 
   if (!targetRect.width || !targetRect.height) {
-    safeStorage.set(introStorageKey, "1");
+    if (attempt < 8) {
+      window.setTimeout(() => playBrandIntro(attempt + 1), 120);
+    }
+
     return;
   }
+
+  safeStorage.set(introStorageKey, "1");
 
   const introLayer = document.createElement("div");
   introLayer.className = "brand-intro-overlay";
@@ -89,7 +94,6 @@ const playBrandIntro = () => {
     cleanedUp = true;
     introLayer.remove();
     body.classList.remove("brand-intro-active");
-    safeStorage.set(introStorageKey, "1");
   };
 
   const safetyTimer = window.setTimeout(cleanup, 2200);
@@ -111,17 +115,34 @@ if (yearNode) {
 }
 
 const startBrandIntro = () => {
+  if (brandIntroStarted) {
+    return;
+  }
+
+  brandIntroStarted = true;
+
   window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(playBrandIntro);
+    window.requestAnimationFrame(() => playBrandIntro(0));
   });
 };
 
 const scheduleBrandIntro = () => {
+  const fallbackTimer = window.setTimeout(startBrandIntro, 650);
+
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(startBrandIntro).catch(startBrandIntro);
+    document.fonts.ready
+      .then(() => {
+        window.clearTimeout(fallbackTimer);
+        startBrandIntro();
+      })
+      .catch(() => {
+        window.clearTimeout(fallbackTimer);
+        startBrandIntro();
+      });
     return;
   }
 
+  window.clearTimeout(fallbackTimer);
   startBrandIntro();
 };
 
