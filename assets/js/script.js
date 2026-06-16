@@ -5,6 +5,14 @@ const serviceTypeSelect = document.getElementById("serviceType");
 const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const scrollProgress = document.createElement("div");
+scrollProgress.className = "scroll-progress";
+scrollProgress.setAttribute("aria-hidden", "true");
+scrollProgress.innerHTML = "<span></span>";
+document.body.prepend(scrollProgress);
+const progressFill = scrollProgress.querySelector("span");
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
@@ -15,6 +23,53 @@ navLinks.forEach((link) => {
     link.classList.add("active");
   }
 });
+
+const staggerGroups = document.querySelectorAll("[data-stagger]");
+staggerGroups.forEach((group) => {
+  Array.from(group.children).forEach((child, index) => {
+    child.style.setProperty("--reveal-delay", `${index * 110}ms`);
+  });
+});
+
+const revealTargets = document.querySelectorAll("[data-reveal]");
+
+if (revealTargets.length) {
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealTargets.forEach((item) => item.classList.add("is-visible"));
+  } else {
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.18,
+        rootMargin: "0px 0px -6% 0px",
+      }
+    );
+
+    revealTargets.forEach((item) => revealObserver.observe(item));
+  }
+}
+
+const updateScrollProgress = () => {
+  if (!progressFill) {
+    return;
+  }
+
+  const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+  const scrollHeight =
+    document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+  progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+};
+
+updateScrollProgress();
+window.addEventListener("scroll", updateScrollProgress, { passive: true });
 
 if (serviceTypeSelect) {
   const queryParams = new URLSearchParams(window.location.search);
