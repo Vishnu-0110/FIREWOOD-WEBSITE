@@ -10,7 +10,7 @@ const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const siteBrand = document.querySelector(".brand");
-const introStorageKey = "vlf_brand_intro_seen_v3";
+const introStorageKey = "vlf_brand_intro_seen_v4";
 
 const getIntroFlag = () => {
   try {
@@ -30,6 +30,39 @@ const setIntroFlag = () => {
 
 const nextFrame = () => new Promise((resolve) => window.requestAnimationFrame(() => resolve()));
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const waitForFonts = async () => {
+  if (!document.fonts || !document.fonts.ready) {
+    return;
+  }
+
+  await Promise.race([document.fonts.ready, wait(1200)]);
+};
+
+const animateBrandMove = (element, from, to, duration) =>
+  new Promise((resolve) => {
+    const startTime = performance.now();
+
+    const step = (now) => {
+      const elapsed = Math.min(1, (now - startTime) / duration);
+      const eased = easeInOutCubic(elapsed);
+      const x = from.x + (to.x - from.x) * eased;
+      const y = from.y + (to.y - from.y) * eased;
+      const scaleX = from.scaleX + (to.scaleX - from.scaleX) * eased;
+      const scaleY = from.scaleY + (to.scaleY - from.scaleY) * eased;
+
+      element.style.transform = `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`;
+
+      if (elapsed < 1) {
+        window.requestAnimationFrame(step);
+        return;
+      }
+
+      resolve();
+    };
+
+    window.requestAnimationFrame(step);
+  });
 
 const playBrandIntro = async () => {
   const introPending = document.documentElement.classList.contains("brand-intro-first-visit");
@@ -72,7 +105,7 @@ const playBrandIntro = async () => {
   introLayer.appendChild(introBrand);
   body.prepend(introLayer);
 
-  const introScale = window.innerWidth <= 560 ? 0.92 : window.innerWidth <= 900 ? 1.12 : 1.34;
+  const introScale = Math.min(2.2, Math.max(1.15, (window.innerWidth - 48) / targetRect.width));
   introBrand.style.left = "50%";
   introBrand.style.top = "50%";
   introBrand.style.opacity = "1";
@@ -81,6 +114,7 @@ const playBrandIntro = async () => {
   const brandText = "VIJAYALAKSHMI FIREWOOD SUPPLIERS";
 
   try {
+    await waitForFonts();
     await nextFrame();
 
     for (const character of brandText) {
@@ -90,44 +124,39 @@ const playBrandIntro = async () => {
 
     await wait(1000);
 
-    const startRect = introBrand.getBoundingClientRect();
-    const currentTargetRect = siteBrand.getBoundingClientRect();
-    const deltaX = currentTargetRect.left - startRect.left;
-    const deltaY = currentTargetRect.top - startRect.top;
-    const scaleX = currentTargetRect.width / startRect.width;
-    const scaleY = currentTargetRect.height / startRect.height;
-
     introBrand.classList.remove("is-typing");
-    introBrand.style.transition = "none";
-    introBrand.style.left = `${startRect.left}px`;
-    introBrand.style.top = `${startRect.top}px`;
-    introBrand.style.width = `${startRect.width}px`;
-    introBrand.style.height = `${startRect.height}px`;
-    introBrand.style.transform = "translate(0px, 0px) scale(1)";
-    introBrand.getBoundingClientRect();
-    introBrand.style.transition = "transform 1.15s ease-in-out";
+    const startRect = introBrand.getBoundingClientRect();
+    const targetRect = siteBrand.getBoundingClientRect();
+    const from = {
+      x: startRect.left - targetRect.left,
+      y: startRect.top - targetRect.top,
+      scaleX: startRect.width / targetRect.width,
+      scaleY: startRect.height / targetRect.height,
+    };
+    const to = {
+      x: 0,
+      y: 0,
+      scaleX: 1,
+      scaleY: 1,
+    };
 
-    window.requestAnimationFrame(() => {
-      introBrand.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
-    });
+    introBrand.style.transition = "none";
+    introBrand.style.left = `${targetRect.left}px`;
+    introBrand.style.top = `${targetRect.top}px`;
+    introBrand.style.width = `${targetRect.width}px`;
+    introBrand.style.height = `${targetRect.height}px`;
+    introBrand.style.transformOrigin = "top left";
+    introBrand.style.transform = `translate(${from.x}px, ${from.y}px) scale(${from.scaleX}, ${from.scaleY})`;
+    introBrand.getBoundingClientRect();
+    await nextFrame();
+
+    await animateBrandMove(introBrand, from, to, 1100);
 
     const cleanup = () => {
       introLayer.remove();
       document.documentElement.classList.remove("brand-intro-first-visit");
     };
-
-    const cleanupTimer = window.setTimeout(cleanup, 1600);
-
-    introBrand.addEventListener(
-      "transitionend",
-      (event) => {
-        if (event.propertyName === "transform") {
-          window.clearTimeout(cleanupTimer);
-          cleanup();
-        }
-      },
-      { once: true }
-    );
+    cleanup();
   } catch (error) {
     introLayer.remove();
     document.documentElement.classList.remove("brand-intro-first-visit");
