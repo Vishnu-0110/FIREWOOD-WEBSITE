@@ -120,6 +120,65 @@ textarea {
   color: var(--muted);
 }
 
+.brand-intro-active {
+  overscroll-behavior: none;
+}
+
+.brand-intro-active .site-header .brand {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.brand-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.brand-intro-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(29, 139, 184, 0.08), transparent 38%),
+    radial-gradient(circle at 20% 20%, rgba(72, 201, 200, 0.08), transparent 22%),
+    radial-gradient(circle at 80% 18%, rgba(23, 63, 141, 0.09), transparent 24%);
+  backdrop-filter: blur(2px);
+}
+
+.brand-intro-clone {
+  position: fixed;
+  z-index: 91;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid rgba(23, 63, 141, 0.08);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 32px 84px rgba(15, 47, 85, 0.22);
+  transform-origin: center center;
+  will-change: transform, opacity, filter;
+  transition:
+    transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1.1s ease,
+    filter 1.1s ease;
+}
+
+.brand-intro-clone .brand-copy {
+  max-width: min(22rem, calc(100vw - 9rem));
+}
+
+.brand-intro-clone .brand-name {
+  font-size: clamp(1rem, 2.1vw, 1.22rem);
+}
+
+.brand-intro-clone .brand-tag {
+  font-size: 0.78rem;
+}
+
 .nav-toggle {
   display: none;
   width: 48px;

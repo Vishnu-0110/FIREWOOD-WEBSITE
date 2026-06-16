@@ -9,9 +9,126 @@ const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const introStorageKey = "vlf_brand_intro_seen";
+const siteBrand = document.querySelector(".brand");
+
+const safeStorage = {
+  get(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  set(key, value) {
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Ignore storage failures and fall back to a normal page load.
+    }
+  },
+};
+
+const playBrandIntro = () => {
+  if (!siteBrand || prefersReducedMotion || safeStorage.get(introStorageKey) === "1") {
+    safeStorage.set(introStorageKey, "1");
+    return;
+  }
+
+  const targetRect = siteBrand.getBoundingClientRect();
+
+  if (!targetRect.width || !targetRect.height) {
+    safeStorage.set(introStorageKey, "1");
+    return;
+  }
+
+  const introLayer = document.createElement("div");
+  introLayer.className = "brand-intro-overlay";
+  introLayer.setAttribute("aria-hidden", "true");
+
+  const introBrand = siteBrand.cloneNode(true);
+  introBrand.classList.add("brand-intro-clone");
+  introBrand.removeAttribute("href");
+  introBrand.setAttribute("tabindex", "-1");
+  introBrand.setAttribute("aria-hidden", "true");
+
+  const targetCenterX = targetRect.left + targetRect.width / 2;
+  const targetCenterY = targetRect.top + targetRect.height / 2;
+  const startCenterX = window.innerWidth / 2;
+  const startCenterY = window.innerHeight / 2;
+  const startX = startCenterX - targetCenterX;
+  const startY = startCenterY - targetCenterY - Math.min(window.innerHeight * 0.04, 26);
+  const startScale = Math.min(1.7, Math.max(1.28, window.innerWidth / 900 + 1.08));
+
+  introBrand.style.left = `${targetRect.left}px`;
+  introBrand.style.top = `${targetRect.top}px`;
+  introBrand.style.width = `${targetRect.width}px`;
+  introBrand.style.height = `${targetRect.height}px`;
+  introBrand.style.transform = `translate(${startX}px, ${startY}px) scale(${startScale})`;
+  introBrand.style.opacity = "0";
+  introBrand.style.filter = "blur(8px)";
+
+  introLayer.appendChild(introBrand);
+  body.classList.add("brand-intro-active");
+  body.prepend(introLayer);
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      introBrand.style.transform = "translate(0px, 0px) scale(1)";
+      introBrand.style.opacity = "1";
+      introBrand.style.filter = "blur(0)";
+    });
+  });
+
+  let cleanedUp = false;
+  const cleanup = () => {
+    if (cleanedUp) {
+      return;
+    }
+
+    cleanedUp = true;
+    introLayer.remove();
+    body.classList.remove("brand-intro-active");
+    safeStorage.set(introStorageKey, "1");
+  };
+
+  const safetyTimer = window.setTimeout(cleanup, 2200);
+
+  introBrand.addEventListener(
+    "transitionend",
+    (event) => {
+      if (event.propertyName === "transform") {
+        window.clearTimeout(safetyTimer);
+        window.setTimeout(cleanup, 180);
+      }
+    },
+    { once: true }
+  );
+};
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
+}
+
+const startBrandIntro = () => {
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(playBrandIntro);
+  });
+};
+
+const scheduleBrandIntro = () => {
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(startBrandIntro).catch(startBrandIntro);
+    return;
+  }
+
+  startBrandIntro();
+};
+
+if (document.readyState === "complete") {
+  scheduleBrandIntro();
+} else {
+  window.addEventListener("load", scheduleBrandIntro, { once: true });
 }
 
 navLinks.forEach((link) => {
