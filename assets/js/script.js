@@ -6,6 +6,10 @@ const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const finePointer = window.matchMedia("(pointer: fine)").matches;
+const parallaxTargets = document.querySelectorAll(
+  ".hero-media img, .visual-box img, .service-card img"
+);
 
 const scrollProgress = document.createElement("div");
 scrollProgress.className = "scroll-progress";
@@ -13,6 +17,20 @@ scrollProgress.setAttribute("aria-hidden", "true");
 scrollProgress.innerHTML = "<span></span>";
 document.body.prepend(scrollProgress);
 const progressFill = scrollProgress.querySelector("span");
+
+let woodCursor = null;
+let cursorRaf = 0;
+let cursorX = 0;
+let cursorY = 0;
+let cursorVisible = false;
+
+if (finePointer && !reduceMotion) {
+  document.body.classList.add("has-wood-cursor");
+  woodCursor = document.createElement("div");
+  woodCursor.className = "wood-cursor";
+  woodCursor.setAttribute("aria-hidden", "true");
+  document.body.appendChild(woodCursor);
+}
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
@@ -68,8 +86,70 @@ const updateScrollProgress = () => {
   progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 };
 
-updateScrollProgress();
-window.addEventListener("scroll", updateScrollProgress, { passive: true });
+const updateParallax = () => {
+  if (!parallaxTargets.length) {
+    return;
+  }
+
+  const viewportCenter = window.innerHeight / 2;
+  parallaxTargets.forEach((target) => {
+    const rect = target.getBoundingClientRect();
+    const distanceFromCenter = rect.top + rect.height / 2 - viewportCenter;
+    const offset = Math.max(-16, Math.min(16, -distanceFromCenter * 0.03));
+    target.style.setProperty("--parallax-y", `${offset.toFixed(2)}px`);
+  });
+};
+
+const updateVisualMotion = () => {
+  updateScrollProgress();
+  updateParallax();
+};
+
+updateVisualMotion();
+window.addEventListener("scroll", updateVisualMotion, { passive: true });
+window.addEventListener("resize", updateVisualMotion, { passive: true });
+
+if (woodCursor) {
+  const animateCursor = () => {
+    if (!woodCursor) {
+      return;
+    }
+    woodCursor.style.left = `${cursorX}px`;
+    woodCursor.style.top = `${cursorY}px`;
+    woodCursor.style.setProperty("--cursor-scale", cursorVisible ? "1" : "0.6");
+  };
+
+  const requestCursorFrame = () => {
+    if (cursorRaf) {
+      return;
+    }
+    cursorRaf = window.requestAnimationFrame(() => {
+      cursorRaf = 0;
+      animateCursor();
+    });
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    cursorX = event.clientX;
+    cursorY = event.clientY;
+    cursorVisible = true;
+    woodCursor.classList.add("is-visible");
+    requestCursorFrame();
+  });
+
+  window.addEventListener("pointerdown", () => {
+    woodCursor.classList.add("is-dragging");
+  });
+
+  window.addEventListener("pointerup", () => {
+    woodCursor.classList.remove("is-dragging");
+  });
+
+  window.addEventListener("mouseleave", () => {
+    cursorVisible = false;
+    woodCursor.classList.remove("is-visible");
+  });
+}
 
 if (serviceTypeSelect) {
   const queryParams = new URLSearchParams(window.location.search);

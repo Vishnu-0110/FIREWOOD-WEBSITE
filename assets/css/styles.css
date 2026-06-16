@@ -667,6 +667,210 @@ h3 {
   }
 }
 
+/* Wood-forward interactive override */
+:root {
+  --bg: #f4ede4;
+  --surface: rgba(255, 251, 245, 0.84);
+  --surface-soft: rgba(251, 246, 240, 0.94);
+  --text: #24170f;
+  --muted: #69584b;
+  --brand: #6a3f23;
+  --brand-strong: #3b2113;
+  --accent: #c47a2e;
+  --border: rgba(84, 50, 26, 0.14);
+  --shadow-soft: 0 14px 34px rgba(61, 34, 17, 0.09);
+  --shadow-card: 0 24px 60px rgba(61, 34, 17, 0.16);
+  --radius: 24px;
+}
+
+body {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(196, 122, 46, 0.14) 0, transparent 28%),
+    radial-gradient(circle at 88% 12%, rgba(106, 63, 35, 0.16) 0, transparent 30%),
+    radial-gradient(circle at 72% 88%, rgba(196, 122, 46, 0.09) 0, transparent 22%),
+    linear-gradient(180deg, #fffaf4 0%, #f7efe4 46%, #efe5d7 100%);
+}
+
+.site-header {
+  background: rgba(255, 250, 244, 0.82);
+  border-bottom-color: rgba(84, 50, 26, 0.16);
+}
+
+.brand-name,
+h1,
+h2,
+h3 {
+  letter-spacing: 0.01em;
+}
+
+.brand-name,
+h1,
+h2 {
+  color: #2f1a10;
+}
+
+.brand-tag,
+.section-head p,
+.lead,
+.info-card p,
+.service-content p,
+.timeline-card p,
+.process-list li div p,
+.stat-card p,
+.contact-item p,
+.page-hero-card p,
+.map-card p {
+  color: #6e5d50;
+}
+
+.site-nav a {
+  color: #4b3325;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  color: #2f1a10;
+  background: rgba(196, 122, 46, 0.12);
+  border-color: rgba(196, 122, 46, 0.26);
+}
+
+.eyebrow,
+.stat-label,
+.timeline-card span,
+.mini-stat,
+.hero-tags span {
+  color: #9f5b16;
+}
+
+.hero-content,
+.hero-media,
+.visual-box,
+.info-card,
+.service-card,
+.timeline-card,
+.contact-card,
+.map-card,
+.page-hero .container,
+.cta-strip-wrap,
+.page-hero-card,
+.stat-card,
+.process-list li {
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.92) 0%, rgba(246, 238, 228, 0.88) 100%);
+  border-color: rgba(84, 50, 26, 0.12);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-primary {
+  color: #fffaf4;
+  background: linear-gradient(135deg, #8b4f26 0%, #5c3219 100%);
+  box-shadow: 0 16px 30px rgba(92, 50, 25, 0.28);
+}
+
+.btn-secondary {
+  color: #5a331d;
+  background: rgba(255, 248, 240, 0.9);
+  border-color: rgba(122, 78, 43, 0.22);
+}
+
+.hero-content::after {
+  background: linear-gradient(90deg, transparent, rgba(196, 122, 46, 0.95), transparent);
+}
+
+.media-badge {
+  background: rgba(53, 29, 18, 0.82);
+}
+
+.cta-strip-wrap {
+  background: linear-gradient(135deg, #5d341c 0%, #31190f 100%);
+  border-color: rgba(255, 205, 158, 0.22);
+}
+
+.site-footer {
+  background: linear-gradient(180deg, #f4e8da 0%, #eadac7 100%);
+  border-top-color: rgba(84, 50, 26, 0.14);
+}
+
+.scroll-progress span {
+  background: linear-gradient(90deg, #8b4f26, #c47a2e, #5d341c);
+}
+
+.hero-media img,
+.visual-box img,
+.service-card img {
+  transition: transform 0.35s ease, filter 0.35s ease;
+  transform: translate3d(0, var(--parallax-y, 0px), 0) scale(var(--media-scale, 1));
+  will-change: transform;
+}
+
+.hero-media:hover img,
+.visual-box:hover img,
+.service-card:hover img {
+  --media-scale: 1.05;
+}
+
+.hero-media,
+.visual-box,
+.service-card img {
+  overflow: hidden;
+}
+
+.wood-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 28px;
+  height: 14px;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+  --cursor-scale: 0.6;
+  --cursor-rotate: -14deg;
+  transform: translate3d(-50%, -50%, 0) scale(var(--cursor-scale)) rotate(var(--cursor-rotate));
+  transition: opacity 0.18s ease, transform 0.12s ease;
+  background:
+    linear-gradient(90deg, #5d341c 0%, #99613a 26%, #b87a49 50%, #8a532f 74%, #5d341c 100%);
+  border: 1px solid rgba(28, 15, 8, 0.32);
+  box-shadow: 0 8px 18px rgba(43, 22, 11, 0.22);
+}
+
+.wood-cursor::before,
+.wood-cursor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(53, 29, 18, 0.28);
+}
+
+.wood-cursor::before {
+  left: 2px;
+  background: radial-gradient(circle, #f0cfab 0 30%, #b87a49 31% 52%, #5d341c 53% 100%);
+}
+
+.wood-cursor::after {
+  right: 2px;
+  background: radial-gradient(circle, #f0cfab 0 30%, #b87a49 31% 52%, #5d341c 53% 100%);
+}
+
+.wood-cursor.is-visible {
+  opacity: 1;
+}
+
+.wood-cursor.is-dragging {
+  --cursor-scale: 1;
+}
+
+body.has-wood-cursor,
+body.has-wood-cursor a,
+body.has-wood-cursor button,
+body.has-wood-cursor label {
+  cursor: none;
+}
+
 /* Refined visual system */
 :root {
   --bg: #eef2ee;
