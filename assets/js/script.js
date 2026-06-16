@@ -9,43 +9,40 @@ const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const introStorageKey = "vlf_brand_intro_seen_session";
 const siteBrand = document.querySelector(".brand");
-let brandIntroStarted = false;
+const introStorageKey = "vlf_brand_intro_seen";
 
-const safeStorage = {
-  get(key) {
-    try {
-      return window.localStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  },
-  set(key, value) {
-    try {
-      window.localStorage.setItem(key, value);
-    } catch {
-      // Ignore storage failures and fall back to a normal page load.
-    }
-  },
+const getSessionFlag = () => {
+  try {
+    return window.sessionStorage.getItem(introStorageKey);
+  } catch {
+    return null;
+  }
+};
+
+const setSessionFlag = () => {
+  try {
+    window.sessionStorage.setItem(introStorageKey, "1");
+  } catch {
+    // If storage is unavailable, the intro still runs once per page load.
+  }
 };
 
 const playBrandIntro = (attempt = 0) => {
-  if (!siteBrand || prefersReducedMotion || safeStorage.get(introStorageKey) === "1") {
+  if (!siteBrand || prefersReducedMotion || getSessionFlag() === "1") {
     return;
   }
 
   const targetRect = siteBrand.getBoundingClientRect();
 
   if (!targetRect.width || !targetRect.height) {
-    if (attempt < 8) {
-      window.setTimeout(() => playBrandIntro(attempt + 1), 120);
+    if (attempt < 10) {
+      window.setTimeout(() => playBrandIntro(attempt + 1), 80);
     }
-
     return;
   }
 
-  safeStorage.set(introStorageKey, "1");
+  setSessionFlag();
 
   const introLayer = document.createElement("div");
   introLayer.className = "brand-intro-overlay";
@@ -57,99 +54,43 @@ const playBrandIntro = (attempt = 0) => {
   introBrand.setAttribute("tabindex", "-1");
   introBrand.setAttribute("aria-hidden", "true");
 
-  const targetCenterX = targetRect.left + targetRect.width / 2;
-  const targetCenterY = targetRect.top + targetRect.height / 2;
-  const startCenterX = window.innerWidth / 2;
-  const startCenterY = window.innerHeight / 2;
-  const startX = startCenterX - targetCenterX;
-  const startY = startCenterY - targetCenterY - Math.min(window.innerHeight * 0.04, 26);
-  const startScale = Math.min(1.7, Math.max(1.28, window.innerWidth / 900 + 1.08));
-
-  introBrand.style.left = `${targetRect.left}px`;
-  introBrand.style.top = `${targetRect.top}px`;
-  introBrand.style.width = `${targetRect.width}px`;
-  introBrand.style.height = `${targetRect.height}px`;
-  introBrand.style.transform = `translate(${startX}px, ${startY}px) scale(${startScale})`;
-  introBrand.style.opacity = "0";
-  introBrand.style.filter = "blur(8px)";
-
   introLayer.appendChild(introBrand);
   body.classList.add("brand-intro-active");
   body.prepend(introLayer);
 
+  introBrand.style.left = "50%";
+  introBrand.style.top = "50%";
+  introBrand.style.opacity = "1";
+  introBrand.style.transform = "translate(-50%, -50%) scale(1.18)";
+
   window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => {
-      introBrand.style.transform = "translate(0px, 0px) scale(1)";
-      introBrand.style.opacity = "1";
-      introBrand.style.filter = "blur(0)";
-    });
+    introBrand.style.left = `${targetRect.left}px`;
+    introBrand.style.top = `${targetRect.top}px`;
+    introBrand.style.width = `${targetRect.width}px`;
+    introBrand.style.height = `${targetRect.height}px`;
+    introBrand.style.transform = "none";
   });
 
-  let cleanedUp = false;
-  const cleanup = () => {
-    if (cleanedUp) {
-      return;
-    }
-
-    cleanedUp = true;
+  window.setTimeout(() => {
     introLayer.remove();
     body.classList.remove("brand-intro-active");
-  };
-
-  const safetyTimer = window.setTimeout(cleanup, 2200);
-
-  introBrand.addEventListener(
-    "transitionend",
-    (event) => {
-      if (event.propertyName === "transform") {
-        window.clearTimeout(safetyTimer);
-        window.setTimeout(cleanup, 180);
-      }
-    },
-    { once: true }
-  );
+  }, 220);
 };
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
 }
 
-const startBrandIntro = () => {
-  if (brandIntroStarted) {
-    return;
-  }
-
-  brandIntroStarted = true;
-
-  window.requestAnimationFrame(() => {
-    window.requestAnimationFrame(() => playBrandIntro(0));
-  });
-};
-
-const scheduleBrandIntro = () => {
-  const fallbackTimer = window.setTimeout(startBrandIntro, 650);
-
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready
-      .then(() => {
-        window.clearTimeout(fallbackTimer);
-        startBrandIntro();
-      })
-      .catch(() => {
-        window.clearTimeout(fallbackTimer);
-        startBrandIntro();
-      });
-    return;
-  }
-
-  window.clearTimeout(fallbackTimer);
-  startBrandIntro();
-};
-
 if (document.readyState === "complete") {
-  scheduleBrandIntro();
+  window.requestAnimationFrame(() => playBrandIntro(0));
 } else {
-  window.addEventListener("load", scheduleBrandIntro, { once: true });
+  window.addEventListener(
+    "load",
+    () => {
+      window.requestAnimationFrame(() => playBrandIntro(0));
+    },
+    { once: true }
+  );
 }
 
 navLinks.forEach((link) => {

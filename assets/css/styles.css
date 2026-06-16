@@ -141,11 +141,7 @@ textarea {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(29, 139, 184, 0.08), transparent 38%),
-    radial-gradient(circle at 20% 20%, rgba(72, 201, 200, 0.08), transparent 22%),
-    radial-gradient(circle at 80% 18%, rgba(23, 63, 141, 0.09), transparent 24%);
-  backdrop-filter: blur(2px);
+  background: transparent;
 }
 
 .brand-intro-clone {
@@ -161,10 +157,7 @@ textarea {
   box-shadow: 0 32px 84px rgba(15, 47, 85, 0.22);
   transform-origin: center center;
   will-change: transform, opacity, filter;
-  transition:
-    transform 1.4s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 1.1s ease,
-    filter 1.1s ease;
+  transition: none;
 }
 
 .brand-intro-clone .brand-copy {
