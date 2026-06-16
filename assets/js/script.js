@@ -1,97 +1,14 @@
+const body = document.body;
+const currentPage = body.getAttribute("data-page");
 const navLinks = document.querySelectorAll(".site-nav a");
-const currentPage = document.body.getAttribute("data-page");
+const navToggle = document.querySelector(".nav-toggle");
+const navPanel = document.querySelector(".nav-panel");
 const yearNode = document.getElementById("year");
 const serviceTypeSelect = document.getElementById("serviceType");
 const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const finePointer = window.matchMedia("(pointer: fine)").matches;
-let brandIntro = document.querySelector(".brand-intro");
-const parallaxTargets = document.querySelectorAll(
-  ".hero-media img, .visual-box img, .service-card img"
-);
-const introSeen = sessionStorage.getItem("vlfsIntroSeen") === "1";
-const brandIntroMarkup = `
-  <div class="brand-intro" aria-hidden="true">
-    <div class="brand-intro-shell">
-      <img class="brand-intro-logo" src="assets/images/business-logo.jpg" alt="">
-      <div class="brand-intro-copy">
-        <span class="brand-intro-name">VIJAYA LAKSHMI FIREWOOD SUPPLIERS</span>
-        <span class="brand-intro-tag">Quality industrial firewood since 2000</span>
-        <span class="brand-intro-cue">Scroll to enter the site</span>
-      </div>
-    </div>
-  </div>
-`;
-
-const scrollProgress = document.createElement("div");
-scrollProgress.className = "scroll-progress";
-scrollProgress.setAttribute("aria-hidden", "true");
-scrollProgress.innerHTML = "<span></span>";
-document.body.prepend(scrollProgress);
-const progressFill = scrollProgress.querySelector("span");
-
-let woodCursor = null;
-let cursorRaf = 0;
-let cursorX = 0;
-let cursorY = 0;
-let cursorVisible = false;
-let brandStartX = window.innerWidth / 2;
-let brandStartY = window.innerHeight / 2.25;
-
-if (introSeen && brandIntro) {
-  brandIntro.remove();
-  brandIntro = null;
-}
-
-if (!brandIntro && !introSeen) {
-  document.body.insertAdjacentHTML("afterbegin", brandIntroMarkup);
-  brandIntro = document.querySelector(".brand-intro");
-}
-
-if (finePointer && !reduceMotion) {
-  document.body.classList.add("has-wood-cursor");
-  woodCursor = document.createElement("div");
-  woodCursor.className = "wood-cursor";
-  woodCursor.setAttribute("aria-hidden", "true");
-  document.body.appendChild(woodCursor);
-}
-
-const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-const lerp = (from, to, ratio) => from + (to - from) * ratio;
-
-const updateBrandIntro = () => {
-  if (!brandIntro) {
-    return;
-  }
-
-  if (reduceMotion) {
-    brandIntro.style.display = "none";
-    return;
-  }
-
-  brandIntro.style.display = "";
-  const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-  const progress = clamp(scrollTop / 280, 0, 1);
-  const targetX = 34;
-  const targetY = 36;
-  const scale = lerp(1, 0.28, progress);
-  const x = lerp(brandStartX, targetX, progress);
-  const y = lerp(brandStartY, targetY, progress);
-
-  brandIntro.style.setProperty("--brand-x", `${x}px`);
-  brandIntro.style.setProperty("--brand-y", `${y}px`);
-  brandIntro.style.setProperty("--brand-scale", `${scale}`);
-  brandIntro.style.setProperty("--brand-copy-opacity", `${lerp(1, 0.18, progress)}`);
-  brandIntro.style.setProperty("--brand-shell-opacity", `${lerp(1, 0.96, progress)}`);
-  brandIntro.classList.toggle("is-settled", progress > 0.88);
-
-  if (progress > 0.96) {
-    sessionStorage.setItem("vlfsIntroSeen", "1");
-    brandIntro.classList.add("is-settled");
-  }
-};
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
@@ -103,17 +20,46 @@ navLinks.forEach((link) => {
   }
 });
 
+if (navToggle && navPanel) {
+  const closeNav = () => {
+    navToggle.setAttribute("aria-expanded", "false");
+    navPanel.classList.remove("is-open");
+  };
+
+  navToggle.addEventListener("click", () => {
+    const isOpen = navPanel.classList.toggle("is-open");
+    navToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", closeNav);
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) {
+      closeNav();
+    }
+  });
+}
+
+const scrollProgress = document.createElement("div");
+scrollProgress.className = "scroll-progress";
+scrollProgress.setAttribute("aria-hidden", "true");
+scrollProgress.innerHTML = "<span></span>";
+body.prepend(scrollProgress);
+
+const progressFill = scrollProgress.querySelector("span");
+const revealTargets = document.querySelectorAll("[data-reveal]");
 const staggerGroups = document.querySelectorAll("[data-stagger]");
+
 staggerGroups.forEach((group) => {
   Array.from(group.children).forEach((child, index) => {
-    child.style.setProperty("--reveal-delay", `${index * 110}ms`);
+    child.style.transitionDelay = `${index * 90}ms`;
   });
 });
 
-const revealTargets = document.querySelectorAll("[data-reveal]");
-
 if (revealTargets.length) {
-  if (reduceMotion || !("IntersectionObserver" in window)) {
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
     revealTargets.forEach((item) => item.classList.add("is-visible"));
   } else {
     const revealObserver = new IntersectionObserver(
@@ -126,12 +72,12 @@ if (revealTargets.length) {
         });
       },
       {
-        threshold: 0.18,
-        rootMargin: "0px 0px -6% 0px",
+        threshold: 0.16,
+        rootMargin: "0px 0px -5% 0px",
       }
     );
 
-    revealTargets.forEach((item) => revealObserver.observe(item));
+    revealTargets.forEach((target) => revealObserver.observe(target));
   }
 }
 
@@ -141,94 +87,25 @@ const updateScrollProgress = () => {
   }
 
   const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
-  const scrollHeight =
-    document.documentElement.scrollHeight - window.innerHeight;
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
   progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
 };
 
-const updateParallax = () => {
-  if (reduceMotion) {
-    return;
-  }
-
-  if (!parallaxTargets.length) {
-    return;
-  }
-
-  const viewportCenter = window.innerHeight / 2;
-  parallaxTargets.forEach((target) => {
-    const rect = target.getBoundingClientRect();
-    const distanceFromCenter = rect.top + rect.height / 2 - viewportCenter;
-    const offset = Math.max(-16, Math.min(16, -distanceFromCenter * 0.03));
-    target.style.setProperty("--parallax-y", `${offset.toFixed(2)}px`);
-  });
-};
-
-const updateVisualMotion = () => {
-  updateScrollProgress();
-  updateParallax();
-  updateBrandIntro();
-};
-
-updateVisualMotion();
-window.addEventListener("scroll", updateVisualMotion, { passive: true });
-window.addEventListener("resize", () => {
-  brandStartX = window.innerWidth / 2;
-  brandStartY = window.innerHeight / 2.25;
-  updateVisualMotion();
-});
-
-if (woodCursor) {
-  const animateCursor = () => {
-    if (!woodCursor) {
-      return;
-    }
-    woodCursor.style.left = `${cursorX}px`;
-    woodCursor.style.top = `${cursorY}px`;
-    woodCursor.style.setProperty("--cursor-scale", cursorVisible ? "1" : "0.6");
-  };
-
-  const requestCursorFrame = () => {
-    if (cursorRaf) {
-      return;
-    }
-    cursorRaf = window.requestAnimationFrame(() => {
-      cursorRaf = 0;
-      animateCursor();
-    });
-  };
-
-  window.addEventListener("pointermove", (event) => {
-    cursorX = event.clientX;
-    cursorY = event.clientY;
-    cursorVisible = true;
-    woodCursor.classList.add("is-visible");
-    requestCursorFrame();
-  });
-
-  window.addEventListener("pointerdown", () => {
-    woodCursor.classList.add("is-dragging");
-  });
-
-  window.addEventListener("pointerup", () => {
-    woodCursor.classList.remove("is-dragging");
-  });
-
-  window.addEventListener("mouseleave", () => {
-    cursorVisible = false;
-    woodCursor.classList.remove("is-visible");
-  });
-}
+updateScrollProgress();
+window.addEventListener("scroll", updateScrollProgress, { passive: true });
+window.addEventListener("resize", updateScrollProgress);
 
 if (serviceTypeSelect) {
   const queryParams = new URLSearchParams(window.location.search);
   const requestedService = queryParams.get("service");
+
   if (requestedService) {
-    const normalizedRequested = requestedService.trim().toLowerCase();
+    const normalized = requestedService.trim().toLowerCase();
     const matchingOption = Array.from(serviceTypeSelect.options).find(
-      (option) => option.value.trim().toLowerCase() === normalizedRequested
+      (option) => option.value.trim().toLowerCase() === normalized
     );
+
     if (matchingOption) {
       serviceTypeSelect.value = matchingOption.value;
     }
@@ -236,43 +113,44 @@ if (serviceTypeSelect) {
 }
 
 if (availabilityStatus) {
-  const nowInIST = new Date(
-    new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-  );
-  const currentHour = nowInIST.getHours();
+  const hourPart = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(new Date())
+    .find((part) => part.type === "hour");
+
+  const currentHour = hourPart ? Number(hourPart.value) : 0;
   const isOpen = currentHour >= 7 && currentHour < 21;
+
   availabilityStatus.classList.add(isOpen ? "open" : "closed");
   availabilityStatus.textContent = isOpen
-    ? "Status: Available now for inquiry calls and WhatsApp."
-    : "Status: You can still send WhatsApp now, I will respond as early as possible.";
+    ? "Status: Available now for call and WhatsApp inquiries."
+    : "Status: You can send your requirement now and we will respond as early as possible.";
 }
 
 if (inquiryForm) {
   inquiryForm.addEventListener("submit", (event) => {
     event.preventDefault();
+
     const customerName = document.getElementById("customerName").value.trim();
     const businessType = document.getElementById("businessType").value.trim();
     const serviceType = document.getElementById("serviceType").value.trim();
     const quantityRaw = document.getElementById("quantity").value.trim();
-    const requirementDetails = document
-      .getElementById("requirementDetails")
-      .value.trim();
+    const requirementDetails = document.getElementById("requirementDetails").value.trim();
 
     if (!customerName || !businessType || !serviceType || !quantityRaw) {
-      if (formFeedback) {
-        formFeedback.textContent =
-          "Please fill Name, Business Type, Firewood Type, and Quantity.";
-        formFeedback.className = "form-feedback error";
-      }
+      formFeedback.textContent = "Please fill in name, business type, firewood type, and quantity.";
+      formFeedback.className = "form-feedback error";
       return;
     }
 
     const quantityValue = Number(quantityRaw);
+
     if (!Number.isFinite(quantityValue) || quantityValue <= 0) {
-      if (formFeedback) {
-        formFeedback.textContent = "Please enter quantity as a valid number.";
-        formFeedback.className = "form-feedback error";
-      }
+      formFeedback.textContent = "Please enter quantity as a valid number greater than zero.";
+      formFeedback.className = "form-feedback error";
       return;
     }
 
@@ -291,14 +169,10 @@ if (inquiryForm) {
       `Requirement Details: ${requirementDetails || "Not specified"}`,
     ].join("\n");
 
-    const whatsappURL =
-      "https://wa.me/917598244292?text=" + encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/917598244292?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank", "noopener");
 
-    window.open(whatsappURL, "_blank", "noopener");
-
-    if (formFeedback) {
-      formFeedback.textContent = "WhatsApp opened with your inquiry details.";
-      formFeedback.className = "form-feedback success";
-    }
+    formFeedback.textContent = "WhatsApp opened with your inquiry details.";
+    formFeedback.className = "form-feedback success";
   });
 }
