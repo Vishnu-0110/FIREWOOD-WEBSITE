@@ -7,10 +7,23 @@ const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = window.matchMedia("(pointer: fine)").matches;
-const brandIntro = document.querySelector(".brand-intro");
+let brandIntro = document.querySelector(".brand-intro");
 const parallaxTargets = document.querySelectorAll(
   ".hero-media img, .visual-box img, .service-card img"
 );
+const introSeen = sessionStorage.getItem("vlfsIntroSeen") === "1";
+const brandIntroMarkup = `
+  <div class="brand-intro" aria-hidden="true">
+    <div class="brand-intro-shell">
+      <img class="brand-intro-logo" src="assets/images/business-logo.jpg" alt="">
+      <div class="brand-intro-copy">
+        <span class="brand-intro-name">VIJAYA LAKSHMI FIREWOOD SUPPLIERS</span>
+        <span class="brand-intro-tag">Quality industrial firewood since 2000</span>
+        <span class="brand-intro-cue">Scroll to enter the site</span>
+      </div>
+    </div>
+  </div>
+`;
 
 const scrollProgress = document.createElement("div");
 scrollProgress.className = "scroll-progress";
@@ -26,6 +39,16 @@ let cursorY = 0;
 let cursorVisible = false;
 let brandStartX = window.innerWidth / 2;
 let brandStartY = window.innerHeight / 2.25;
+
+if (introSeen && brandIntro) {
+  brandIntro.remove();
+  brandIntro = null;
+}
+
+if (!brandIntro && !introSeen) {
+  document.body.insertAdjacentHTML("afterbegin", brandIntroMarkup);
+  brandIntro = document.querySelector(".brand-intro");
+}
 
 if (finePointer && !reduceMotion) {
   document.body.classList.add("has-wood-cursor");
@@ -63,6 +86,11 @@ const updateBrandIntro = () => {
   brandIntro.style.setProperty("--brand-copy-opacity", `${lerp(1, 0.18, progress)}`);
   brandIntro.style.setProperty("--brand-shell-opacity", `${lerp(1, 0.96, progress)}`);
   brandIntro.classList.toggle("is-settled", progress > 0.88);
+
+  if (progress > 0.96) {
+    sessionStorage.setItem("vlfsIntroSeen", "1");
+    brandIntro.classList.add("is-settled");
+  }
 };
 
 if (yearNode) {

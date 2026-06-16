@@ -803,11 +803,13 @@ body[data-page="home"] .site-header {
   width: clamp(76px, 10vw, 144px);
   height: clamp(76px, 10vw, 144px);
   border-radius: 30px;
-  object-fit: cover;
-  background: #fff;
+  object-fit: contain;
+  padding: 0.55rem;
+  background: linear-gradient(180deg, #fffdf9 0%, #f4eadf 100%);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 20px 42px rgba(0, 0, 0, 0.28);
   flex: 0 0 auto;
+  animation: intro-glow 3.8s ease-in-out infinite alternate;
 }
 
 .brand-intro-copy {
@@ -856,6 +858,17 @@ body[data-page="home"] .site-header {
 .brand-intro.is-settled .brand-intro-cue {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+@keyframes intro-glow {
+  from {
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.28);
+    filter: saturate(0.98);
+  }
+  to {
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.34);
+    filter: saturate(1.06);
+  }
 }
 
 .hero,
