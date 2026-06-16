@@ -108,6 +108,7 @@ textarea {
   justify-content: space-between;
   gap: 1.25rem;
   min-height: 84px;
+  position: relative;
 }
 
 .brand {
@@ -863,14 +864,16 @@ h3 {
 
   .nav-toggle {
     display: inline-block;
+    margin-left: auto;
   }
 
   .nav-panel {
     position: absolute;
     top: calc(100% + 0.7rem);
-    left: 1rem;
-    right: 1rem;
-    display: none;
+    left: 0;
+    right: auto;
+    width: min(84vw, 320px);
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     padding: 1rem;
@@ -878,10 +881,16 @@ h3 {
     background: rgba(250, 248, 244, 0.98);
     border: 1px solid rgba(24, 35, 31, 0.08);
     box-shadow: var(--shadow-strong);
+    transform: translateX(-110%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.28s ease, opacity 0.28s ease;
   }
 
   .nav-panel.is-open {
-    display: flex;
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .site-nav {
@@ -904,6 +913,10 @@ h3 {
   .header-wrap,
   .cta-strip-wrap {
     align-items: flex-start;
+  }
+
+  .header-wrap {
+    align-items: center;
   }
 
   .topbar-wrap,
@@ -939,6 +952,7 @@ h3 {
 @media (max-width: 560px) {
   .header-wrap {
     min-height: 76px;
+    align-items: center;
   }
 
   .brand-logo {
