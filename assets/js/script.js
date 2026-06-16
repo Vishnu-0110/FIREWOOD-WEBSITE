@@ -7,6 +7,7 @@ const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = window.matchMedia("(pointer: fine)").matches;
+const brandIntro = document.querySelector(".brand-intro");
 const parallaxTargets = document.querySelectorAll(
   ".hero-media img, .visual-box img, .service-card img"
 );
@@ -23,6 +24,8 @@ let cursorRaf = 0;
 let cursorX = 0;
 let cursorY = 0;
 let cursorVisible = false;
+let brandStartX = window.innerWidth / 2;
+let brandStartY = window.innerHeight / 2.25;
 
 if (finePointer && !reduceMotion) {
   document.body.classList.add("has-wood-cursor");
@@ -31,6 +34,36 @@ if (finePointer && !reduceMotion) {
   woodCursor.setAttribute("aria-hidden", "true");
   document.body.appendChild(woodCursor);
 }
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const lerp = (from, to, ratio) => from + (to - from) * ratio;
+
+const updateBrandIntro = () => {
+  if (!brandIntro) {
+    return;
+  }
+
+  if (reduceMotion) {
+    brandIntro.style.display = "none";
+    return;
+  }
+
+  brandIntro.style.display = "";
+  const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+  const progress = clamp(scrollTop / 280, 0, 1);
+  const targetX = 34;
+  const targetY = 36;
+  const scale = lerp(1, 0.28, progress);
+  const x = lerp(brandStartX, targetX, progress);
+  const y = lerp(brandStartY, targetY, progress);
+
+  brandIntro.style.setProperty("--brand-x", `${x}px`);
+  brandIntro.style.setProperty("--brand-y", `${y}px`);
+  brandIntro.style.setProperty("--brand-scale", `${scale}`);
+  brandIntro.style.setProperty("--brand-copy-opacity", `${lerp(1, 0.18, progress)}`);
+  brandIntro.style.setProperty("--brand-shell-opacity", `${lerp(1, 0.96, progress)}`);
+  brandIntro.classList.toggle("is-settled", progress > 0.88);
+};
 
 if (yearNode) {
   yearNode.textContent = new Date().getFullYear();
@@ -87,6 +120,10 @@ const updateScrollProgress = () => {
 };
 
 const updateParallax = () => {
+  if (reduceMotion) {
+    return;
+  }
+
   if (!parallaxTargets.length) {
     return;
   }
@@ -103,11 +140,16 @@ const updateParallax = () => {
 const updateVisualMotion = () => {
   updateScrollProgress();
   updateParallax();
+  updateBrandIntro();
 };
 
 updateVisualMotion();
 window.addEventListener("scroll", updateVisualMotion, { passive: true });
-window.addEventListener("resize", updateVisualMotion, { passive: true });
+window.addEventListener("resize", () => {
+  brandStartX = window.innerWidth / 2;
+  brandStartY = window.innerHeight / 2.25;
+  updateVisualMotion();
+});
 
 if (woodCursor) {
   const animateCursor = () => {
