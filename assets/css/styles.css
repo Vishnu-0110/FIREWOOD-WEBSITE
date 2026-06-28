@@ -1025,7 +1025,7 @@ h3 {
 
 .map-card iframe,
 .map-card .map-preview,
-.map-card .location-map {
+.map-card .location-map-link {
   width: 100%;
   min-height: 420px;
   margin-top: 0.8rem;
@@ -1033,9 +1033,51 @@ h3 {
   border-radius: 22px;
 }
 
-.location-map {
-  height: clamp(280px, 40vw, 420px);
+.location-map-link {
+  position: relative;
+  display: block;
   overflow: hidden;
+}
+
+.location-map {
+  display: block;
+  width: 100%;
+  height: clamp(280px, 40vw, 420px);
+  object-fit: cover;
+  object-position: center;
+}
+
+.location-map-pin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.35rem;
+  height: 1.35rem;
+  transform: translate(-50%, -100%);
+  border-radius: 50% 50% 50% 0;
+  background: linear-gradient(180deg, #f64b3c 0%, #d91f11 100%);
+  box-shadow: 0 12px 24px rgba(217, 31, 17, 0.32);
+}
+
+.location-map-pin::before {
+  content: "";
+  position: absolute;
+  inset: 0.35rem;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.location-map-pin::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.35rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(217, 31, 17, 0.25);
+  filter: blur(2px);
 }
 
 .cta-strip {
