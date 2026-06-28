@@ -369,13 +369,29 @@ if (locationMap && window.L) {
     zoomControl: true,
     dragging: true,
     tap: true,
-  }).setView(businessCoordinates, 18);
+  }).setView(businessCoordinates, 19);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
   }).addTo(businessMap);
 
-  const marker = L.marker(businessCoordinates).addTo(businessMap);
-  marker.bindPopup("Vijaya Lakshmi Firewood Suppliers").openPopup();
+  const exactPin = L.circleMarker(businessCoordinates, {
+    radius: 10,
+    color: "#173f8d",
+    weight: 4,
+    fillColor: "#1d8bb8",
+    fillOpacity: 1,
+  }).addTo(businessMap);
+
+  exactPin
+    .bindPopup("Vijaya Lakshmi Firewood Suppliers")
+    .openPopup();
+
+  exactPin.bindTooltip("Vijaya Lakshmi Firewood Suppliers", {
+    permanent: true,
+    direction: "top",
+    offset: [0, -12],
+    className: "location-tooltip",
+  });
 }

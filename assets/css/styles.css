@@ -1017,6 +1017,21 @@ h3 {
   border-radius: 14px;
 }
 
+.location-tooltip {
+  background: rgba(15, 47, 85, 0.94);
+  color: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(15, 47, 85, 0.24);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.location-tooltip::before {
+  display: none;
+}
+
 .cta-strip {
   padding: 0 0 4.5rem;
 }
