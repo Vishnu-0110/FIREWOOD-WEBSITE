@@ -4,7 +4,8 @@ const navLinks = document.querySelectorAll(".site-nav a");
 const navToggle = document.querySelector(".nav-toggle");
 const navPanel = document.querySelector(".nav-panel");
 const yearNode = document.getElementById("year");
-const serviceTypeSelect = document.getElementById("serviceType");
+const woodTypeSelect = document.getElementById("woodType");
+const serviceTypeSelect = woodTypeSelect || document.getElementById("serviceType");
 const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
@@ -260,7 +261,7 @@ window.addEventListener("resize", updateScrollProgress);
 
 if (serviceTypeSelect) {
   const queryParams = new URLSearchParams(window.location.search);
-  const requestedService = queryParams.get("service");
+  const requestedService = queryParams.get("wood") || queryParams.get("service");
 
   if (requestedService) {
     const normalized = requestedService.trim().toLowerCase();
@@ -297,21 +298,41 @@ if (inquiryForm) {
     event.preventDefault();
 
     const customerName = document.getElementById("customerName").value.trim();
-    const businessType = document.getElementById("businessType").value.trim();
-    const serviceType = document.getElementById("serviceType").value.trim();
+    const customerEmail = document.getElementById("customerEmail").value.trim();
+    const customerPhone = document.getElementById("customerPhone").value.trim();
+    const woodType = document.getElementById("woodType").value.trim();
     const quantityRaw = document.getElementById("quantity").value.trim();
     const requirementDetails = document.getElementById("requirementDetails").value.trim();
 
-    if (!customerName || !businessType || !serviceType || !quantityRaw) {
-      formFeedback.textContent = "Please fill in name, business type, firewood type, and quantity.";
+    if (customerName.length < 2) {
+      formFeedback.textContent = "Please enter your name.";
+      formFeedback.className = "form-feedback error";
+      return;
+    }
+
+    if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+      formFeedback.textContent = "Please enter a valid email address.";
+      formFeedback.className = "form-feedback error";
+      return;
+    }
+
+    const normalizedPhone = customerPhone.replace(/\D/g, "");
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      formFeedback.textContent = "Please enter a valid 10-digit phone number.";
+      formFeedback.className = "form-feedback error";
+      return;
+    }
+
+    if (!woodType || !quantityRaw) {
+      formFeedback.textContent = "Please choose a wood type and enter a quantity.";
       formFeedback.className = "form-feedback error";
       return;
     }
 
     const quantityValue = Number(quantityRaw);
 
-    if (!Number.isFinite(quantityValue) || quantityValue <= 0) {
-      formFeedback.textContent = "Please enter quantity as a valid number greater than zero.";
+    if (!Number.isFinite(quantityValue) || quantityValue < 5) {
+      formFeedback.textContent = "Please enter quantity as a valid number of at least 5 tons.";
       formFeedback.className = "form-feedback error";
       return;
     }
@@ -325,8 +346,9 @@ if (inquiryForm) {
       "",
       "I need a bulk firewood quotation.",
       `Name: ${customerName}`,
-      `Business Type: ${businessType}`,
-      `Firewood Type: ${serviceType}`,
+      `Email: ${customerEmail}`,
+      `Phone: ${normalizedPhone}`,
+      `Firewood Type: ${woodType}`,
       `Approx Quantity: ${formattedQuantity} Tons`,
       `Requirement Details: ${requirementDetails || "Not specified"}`,
     ].join("\n");
