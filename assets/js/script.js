@@ -9,11 +9,9 @@ const serviceTypeSelect = woodTypeSelect || document.getElementById("serviceType
 const inquiryForm = document.getElementById("quickInquiryForm");
 const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
-const locationMap = document.getElementById("locationMap");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const siteBrand = document.querySelector(".brand");
 const introStorageKey = "vlf_brand_intro_seen_v5";
-const businessCoordinates = [10.829824, 78.6891179];
 
 const getIntroFlag = () => {
   try {
@@ -360,38 +358,5 @@ if (inquiryForm) {
 
     formFeedback.textContent = "WhatsApp opened with your inquiry details.";
     formFeedback.className = "form-feedback success";
-  });
-}
-
-if (locationMap && window.L) {
-  const businessMap = L.map(locationMap, {
-    scrollWheelZoom: false,
-    zoomControl: true,
-    dragging: true,
-    tap: true,
-  }).setView(businessCoordinates, 19);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
-  }).addTo(businessMap);
-
-  const exactPin = L.circleMarker(businessCoordinates, {
-    radius: 10,
-    color: "#173f8d",
-    weight: 4,
-    fillColor: "#1d8bb8",
-    fillOpacity: 1,
-  }).addTo(businessMap);
-
-  exactPin
-    .bindPopup("Vijaya Lakshmi Firewood Suppliers")
-    .openPopup();
-
-  exactPin.bindTooltip("Vijaya Lakshmi Firewood Suppliers", {
-    permanent: true,
-    direction: "top",
-    offset: [0, -12],
-    className: "location-tooltip",
   });
 }
