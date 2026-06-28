@@ -17,6 +17,7 @@
   --radius-md: 22px;
   --radius-sm: 14px;
   --container: 1180px;
+  --control-height: 48px;
 }
 
 *,
@@ -34,6 +35,7 @@ body {
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
   color: var(--text);
   line-height: 1.68;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
   overflow-x: hidden;
   background:
@@ -52,6 +54,17 @@ img {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
 }
 
 button,
@@ -240,7 +253,7 @@ textarea {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 2rem;
-  align-items: center;
+  align-items: stretch;
 }
 
 .hero-panel,
@@ -254,7 +267,12 @@ textarea {
 .hero-side-card,
 .visual-box,
 .stat-card,
-.promise-card {
+.promise-card,
+.faq-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  height: 100%;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(241, 249, 252, 0.93));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -367,27 +385,35 @@ h3 {
 }
 
 .hero-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 0.8rem;
   margin-top: 1.5rem;
+  align-items: stretch;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 154px;
+  min-height: var(--control-height);
   padding: 0.92rem 1.28rem;
   border: 1px solid transparent;
   border-radius: 14px;
   font-weight: 700;
   letter-spacing: 0.01em;
+  line-height: 1.15;
+  text-align: center;
   transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease, border-color 0.22s ease;
 }
 
 .btn:hover {
   transform: translateY(-2px);
+}
+
+.hero-actions .btn,
+.btn-block {
+  width: 100%;
 }
 
 .btn-primary {
@@ -575,6 +601,8 @@ h3 {
 
 .service-card {
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-media {
@@ -626,15 +654,25 @@ h3 {
 
 .service-content {
   padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
 }
 
 .service-content p {
   margin: 0;
 }
 
+.service-content .btn-block {
+  margin-top: auto;
+}
+
 .process-list,
 .feature-list,
 .contact-list {
+  display: grid;
+  gap: 1rem;
   list-style: none;
   margin: 1rem 0 0;
   padding: 0;
@@ -721,14 +759,11 @@ h3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.1rem;
+  align-items: stretch;
 }
 
 .faq-category {
   padding: 1.25rem;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(241, 249, 252, 0.93));
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
 }
 
 .faq-category h3 {
@@ -897,10 +932,6 @@ h3 {
 .contact-card,
 .map-card {
   padding: 1.35rem;
-}
-
-.contact-item + .contact-item {
-  margin-top: 1rem;
 }
 
 .contact-item h3 {
@@ -1387,6 +1418,16 @@ h3 {
     width: min(100% - 1.2rem, var(--container));
   }
 
+  .hero,
+  .section {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .page-hero {
+    padding: 2.4rem 0 1rem;
+  }
+
   .header-wrap,
   .cta-strip-wrap {
     align-items: flex-start;
@@ -1398,6 +1439,10 @@ h3 {
 
   .cta-strip-wrap {
     flex-direction: column;
+  }
+
+  .hero-actions {
+    grid-template-columns: 1fr;
   }
 
   .card-grid,
@@ -1445,6 +1490,15 @@ h3 {
     font-size: 0.8rem;
   }
 
+  .btn {
+    min-height: 46px;
+    padding: 0.86rem 1.05rem;
+  }
+
+  .hero-actions {
+    gap: 0.65rem;
+  }
+
   h1 {
     font-size: clamp(2rem, 10vw, 3rem);
   }
@@ -1478,5 +1532,24 @@ h3 {
     bottom: 0.75rem;
     padding: 0.42rem 0.68rem;
     font-size: 0.68rem;
+  }
+}
+
+@media (hover: none) {
+  .hero-panel:hover,
+  .hero-visual:hover,
+  .info-card:hover,
+  .service-card:hover,
+  .timeline-card:hover,
+  .contact-card:hover,
+  .map-card:hover,
+  .feature-panel:hover,
+  .hero-side-card:hover,
+  .visual-box:hover,
+  .stat-card:hover,
+  .promise-card:hover,
+  .page-hero-shell:hover,
+  .btn:hover {
+    transform: none;
   }
 }
