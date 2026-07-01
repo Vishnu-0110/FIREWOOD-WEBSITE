@@ -147,9 +147,9 @@ textarea {
   z-index: 90;
   pointer-events: none;
   overflow: hidden;
-  background: rgba(248, 252, 255, 0.18);
-  -webkit-backdrop-filter: blur(12px) saturate(1.08);
-  backdrop-filter: blur(12px) saturate(1.08);
+  background: rgba(248, 252, 255, 0.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.06);
+  backdrop-filter: blur(18px) saturate(1.06);
 }
 
 .brand-intro-clone {
@@ -158,16 +158,23 @@ textarea {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  padding: 1rem 1.15rem;
-  border: 1px solid rgba(23, 63, 141, 0.08);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 32px 84px rgba(15, 47, 85, 0.22);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   transform-origin: center center;
   will-change: transform, opacity, filter;
   transition: none;
   backface-visibility: hidden;
   contain: layout paint style;
+}
+
+.brand-intro-clone .brand-logo {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
 }
 
 .brand-intro-clone .brand-copy {
@@ -1543,8 +1550,8 @@ h3 {
 
   .brand-intro-clone {
     gap: 0.7rem;
-    padding: 0.82rem 0.92rem;
-    border-radius: 22px;
+    padding: 0;
+    border-radius: 0;
   }
 
   .service-badge {
