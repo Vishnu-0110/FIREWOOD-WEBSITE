@@ -65,6 +65,11 @@ const playBrandIntro = async () => {
   introBrand.setAttribute("tabindex", "-1");
   introBrand.setAttribute("aria-hidden", "true");
 
+  const introLogo = introBrand.querySelector(".brand-logo");
+  if (introLogo) {
+    introLogo.src = "assets/images/business-logo-transparent.png";
+  }
+
   const introTag = introBrand.querySelector(".brand-tag");
   if (introTag) {
     introTag.remove();
@@ -78,6 +83,13 @@ const playBrandIntro = async () => {
 
   const brandText = introName.textContent.trim();
   introName.textContent = "";
+  Array.from(brandText).forEach((character, index) => {
+    const letter = document.createElement("span");
+    letter.className = "brand-intro-char";
+    letter.style.transitionDelay = `${index * 42}ms`;
+    letter.textContent = character === " " ? "\u00A0" : character;
+    introName.appendChild(letter);
+  });
   introLayer.appendChild(introBrand);
   body.prepend(introLayer);
 
