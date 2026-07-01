@@ -76,6 +76,7 @@ const playBrandIntro = async () => {
     return;
   }
 
+  const brandText = introName.textContent.trim();
   introName.textContent = "";
   introLayer.appendChild(introBrand);
   body.prepend(introLayer);
@@ -87,8 +88,6 @@ const playBrandIntro = async () => {
   introBrand.style.transform = `translate(-50%, -50%) scale(${introScale})`;
   introBrand.style.transformOrigin = "center center";
 
-  const brandText = "VIJAYALAKSHMI FIREWOOD SUPPLIERS";
-
   try {
     await waitForFonts();
     await nextFrame();
@@ -98,7 +97,7 @@ const playBrandIntro = async () => {
       await wait(character === " " ? 100 : 55);
     }
 
-    await wait(1000);
+    await wait(520);
 
     introBrand.classList.remove("is-typing");
     const startRect = introBrand.getBoundingClientRect();
@@ -119,7 +118,7 @@ const playBrandIntro = async () => {
     introBrand.getBoundingClientRect();
     await nextFrame();
 
-    introBrand.style.transition = "transform 900ms ease-in-out";
+    introBrand.style.transition = "transform 780ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease";
     await nextFrame();
     await new Promise((resolve) => {
       let finished = false;
@@ -134,7 +133,7 @@ const playBrandIntro = async () => {
         resolve();
       };
 
-      const fallbackTimer = window.setTimeout(cleanup, 1300);
+      const fallbackTimer = window.setTimeout(cleanup, 1100);
 
       introBrand.addEventListener(
         "transitionend",
@@ -143,8 +142,11 @@ const playBrandIntro = async () => {
             return;
           }
 
+          document.documentElement.classList.remove("brand-intro-first-visit");
+          introBrand.style.opacity = "0";
+
           window.clearTimeout(fallbackTimer);
-          cleanup();
+          window.setTimeout(cleanup, 220);
         },
         { once: true }
       );

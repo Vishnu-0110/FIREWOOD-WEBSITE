@@ -103,6 +103,7 @@ textarea {
   align-items: center;
   gap: 0.9rem;
   min-width: 0;
+  transition: opacity 240ms ease, transform 240ms ease, filter 240ms ease;
 }
 
 .brand-logo {
@@ -134,7 +135,9 @@ textarea {
 }
 
 .brand-intro-first-visit .site-header .brand {
-  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px) scale(0.985);
+  filter: blur(3px);
   pointer-events: none;
 }
 
