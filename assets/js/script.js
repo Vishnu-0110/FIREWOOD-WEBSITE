@@ -78,13 +78,6 @@ const playBrandIntro = async () => {
 
   const brandText = introName.textContent.trim();
   introName.textContent = "";
-  Array.from(brandText).forEach((character, index) => {
-    const letter = document.createElement("span");
-    letter.className = "brand-intro-char";
-    letter.style.transitionDelay = `${index * 42}ms`;
-    letter.textContent = character === " " ? "\u00A0" : character;
-    introName.appendChild(letter);
-  });
   introLayer.appendChild(introBrand);
   body.prepend(introLayer);
 
@@ -99,13 +92,33 @@ const playBrandIntro = async () => {
     await waitForFonts();
     await nextFrame();
 
-    await wait(brandText.length * 42 + 260);
+    for (const character of brandText) {
+      introName.textContent += character;
+      await wait(character === " " ? 100 : 55);
+    }
 
-    introBrand.style.transition = "opacity 260ms ease, transform 260ms ease, filter 260ms ease";
-    introBrand.style.opacity = "0";
-    introBrand.style.transform = `translate(-50%, -50%) scale(${Math.max(0.9, introScale * 0.96)})`;
-    introBrand.style.filter = "blur(4px)";
-    document.documentElement.classList.remove("brand-intro-first-visit");
+    await wait(520);
+
+    introBrand.classList.remove("is-typing");
+    const startRect = introBrand.getBoundingClientRect();
+    const targetRect = siteBrand.getBoundingClientRect();
+    introBrand.style.transition = "none";
+    introBrand.style.left = `${targetRect.left}px`;
+    introBrand.style.top = `${targetRect.top}px`;
+    introBrand.style.width = `${targetRect.width}px`;
+    introBrand.style.height = `${targetRect.height}px`;
+    introBrand.style.transformOrigin = "top left";
+    const startX = startRect.left - targetRect.left;
+    const startY = startRect.top - targetRect.top;
+    const startScaleX = startRect.width / targetRect.width;
+    const startScaleY = startRect.height / targetRect.height;
+    introBrand.style.transform = `translate3d(${startX}px, ${startY}px, 0) scale3d(${startScaleX}, ${startScaleY}, 1)`;
+    introBrand.style.opacity = "1";
+    introBrand.style.filter = "blur(0)";
+    introBrand.getBoundingClientRect();
+    await nextFrame();
+
+    introBrand.style.transition = "transform 780ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease";
     await nextFrame();
     await new Promise((resolve) => {
       let finished = false;
@@ -116,23 +129,29 @@ const playBrandIntro = async () => {
 
         finished = true;
         introLayer.remove();
+        document.documentElement.classList.remove("brand-intro-first-visit");
         resolve();
       };
 
-      const fallbackTimer = window.setTimeout(cleanup, 420);
+      const fallbackTimer = window.setTimeout(cleanup, 1100);
 
       introBrand.addEventListener(
         "transitionend",
         (event) => {
-          if (event.propertyName !== "opacity") {
+          if (event.propertyName !== "transform") {
             return;
           }
 
+          document.documentElement.classList.remove("brand-intro-first-visit");
+          introBrand.style.opacity = "0";
+
           window.clearTimeout(fallbackTimer);
-          cleanup();
+          window.setTimeout(cleanup, 220);
         },
         { once: true }
       );
+
+      introBrand.style.transform = "translate3d(0, 0, 0) scale3d(1, 1, 1)";
     });
   } catch (error) {
     introLayer.remove();
