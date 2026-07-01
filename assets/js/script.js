@@ -126,7 +126,10 @@ const playBrandIntro = async () => {
     introBrand.getBoundingClientRect();
     await nextFrame();
 
-    introBrand.style.transition = "transform 780ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms ease";
+    document.documentElement.classList.remove("brand-intro-first-visit");
+    introLayer.classList.add("is-fading");
+    introBrand.style.transition =
+      "transform 1100ms cubic-bezier(0.22, 1, 0.36, 1), opacity 1100ms cubic-bezier(0.22, 1, 0.36, 1), filter 1100ms cubic-bezier(0.22, 1, 0.36, 1)";
     await nextFrame();
     await new Promise((resolve) => {
       let finished = false;
@@ -137,11 +140,8 @@ const playBrandIntro = async () => {
 
         finished = true;
         introLayer.remove();
-        document.documentElement.classList.remove("brand-intro-first-visit");
         resolve();
       };
-
-      introLayer.classList.add("is-fading");
       const fallbackTimer = window.setTimeout(cleanup, 1400);
 
       introBrand.addEventListener(
