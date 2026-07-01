@@ -141,7 +141,8 @@ const playBrandIntro = async () => {
         resolve();
       };
 
-      const fallbackTimer = window.setTimeout(cleanup, 1100);
+      introLayer.classList.add("is-fading");
+      const fallbackTimer = window.setTimeout(cleanup, 1400);
 
       introBrand.addEventListener(
         "transitionend",
@@ -150,15 +151,16 @@ const playBrandIntro = async () => {
             return;
           }
 
-          document.documentElement.classList.remove("brand-intro-first-visit");
-          introBrand.style.opacity = "0";
-
           window.clearTimeout(fallbackTimer);
-          window.setTimeout(cleanup, 220);
+          cleanup();
         },
         { once: true }
       );
 
+      introBrand.style.transition =
+        "transform 1100ms cubic-bezier(0.22, 1, 0.36, 1), opacity 1100ms cubic-bezier(0.22, 1, 0.36, 1), filter 1100ms cubic-bezier(0.22, 1, 0.36, 1)";
+      introBrand.style.opacity = "0";
+      introBrand.style.filter = "blur(7px)";
       introBrand.style.transform = "translate3d(0, 0, 0) scale3d(1, 1, 1)";
     });
   } catch (error) {
