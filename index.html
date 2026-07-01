@@ -13,7 +13,7 @@
           return;
         }
 
-        if (!window.localStorage.getItem("vlf_brand_intro_seen_v5")) {
+        if (!window.sessionStorage.getItem("vlf_brand_intro_seen_session_v1")) {
           document.documentElement.classList.add("brand-intro-first-visit");
         }
       } catch (error) {

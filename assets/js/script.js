@@ -11,11 +11,11 @@ const formFeedback = document.getElementById("formFeedback");
 const availabilityStatus = document.getElementById("availabilityStatus");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const siteBrand = document.querySelector(".brand");
-const introStorageKey = "vlf_brand_intro_seen_v5";
+const introStorageKey = "vlf_brand_intro_seen_session_v1";
 
 const getIntroFlag = () => {
   try {
-    return window.localStorage.getItem(introStorageKey);
+    return window.sessionStorage.getItem(introStorageKey);
   } catch {
     return null;
   }
@@ -23,7 +23,7 @@ const getIntroFlag = () => {
 
 const setIntroFlag = () => {
   try {
-    window.localStorage.setItem(introStorageKey, "1");
+    window.sessionStorage.setItem(introStorageKey, "1");
   } catch {
     // If storage is unavailable, the intro still works for this page load.
   }
