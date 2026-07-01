@@ -60,7 +60,7 @@ const playBrandIntro = async () => {
   introLayer.setAttribute("aria-hidden", "true");
 
   const introBrand = siteBrand.cloneNode(true);
-  introBrand.classList.add("brand-intro-clone", "is-typing");
+  introBrand.classList.add("brand-intro-clone");
   introBrand.removeAttribute("href");
   introBrand.setAttribute("tabindex", "-1");
   introBrand.setAttribute("aria-hidden", "true");
@@ -103,13 +103,9 @@ const playBrandIntro = async () => {
   try {
     await waitForFonts();
     await nextFrame();
-
-    for (const character of brandText) {
-      introName.textContent += character;
-      await wait(character === " " ? 100 : 55);
-    }
-
-    await wait(520);
+    introBrand.classList.add("is-typing");
+    await nextFrame();
+    await wait(brandText.length * 42 + 240);
 
     introBrand.classList.remove("is-typing");
     const startRect = introBrand.getBoundingClientRect();

@@ -184,8 +184,8 @@ textarea {
 .brand-intro-clone .brand-name {
   color: #f8fbff;
   text-shadow:
-    0 2px 12px rgba(8, 22, 43, 0.7),
-    0 0 16px rgba(255, 255, 255, 0.22);
+    0 2px 8px rgba(8, 22, 43, 0.8),
+    0 0 10px rgba(255, 255, 255, 0.12);
   white-space: nowrap;
   border-right: 0 solid transparent;
 }
@@ -193,10 +193,10 @@ textarea {
 .brand-intro-char {
   display: inline-block;
   opacity: 0;
-  transform: translateY(0.34em) scale(0.99);
+  transform: translateY(0.28em) scale(0.99);
   transition:
-    opacity 160ms ease,
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 140ms ease,
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
