@@ -78,6 +78,13 @@ const playBrandIntro = async () => {
 
   const brandText = introName.textContent.trim();
   introName.textContent = "";
+  Array.from(brandText).forEach((character, index) => {
+    const letter = document.createElement("span");
+    letter.className = "brand-intro-char";
+    letter.style.transitionDelay = `${index * 42}ms`;
+    letter.textContent = character === " " ? "\u00A0" : character;
+    introName.appendChild(letter);
+  });
   introLayer.appendChild(introBrand);
   body.prepend(introLayer);
 
@@ -92,13 +99,7 @@ const playBrandIntro = async () => {
     await waitForFonts();
     await nextFrame();
 
-    for (const character of brandText) {
-      introName.textContent += character;
-      await wait(character === " " ? 100 : 55);
-    }
-
-    introBrand.classList.remove("is-typing");
-    await nextFrame();
+    await wait(brandText.length * 42 + 260);
 
     introBrand.style.transition = "opacity 260ms ease, transform 260ms ease, filter 260ms ease";
     introBrand.style.opacity = "0";

@@ -175,16 +175,24 @@ textarea {
 }
 
 .brand-intro-clone .brand-name {
+  display: inline-flex;
+  align-items: baseline;
   white-space: nowrap;
-  border-right: 0 solid transparent;
 }
 
-.brand-intro-clone.is-typing .brand-name {
-  padding-right: 0.08em;
-  border-right-width: 2px;
-  border-right-style: solid;
-  border-right-color: currentColor;
-  animation: intro-cursor-blink 0.75s step-end infinite;
+.brand-intro-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.34em) scale(0.99);
+  transition:
+    opacity 180ms ease,
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.brand-intro-clone.is-typing .brand-intro-char {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .nav-toggle {
